@@ -73,14 +73,14 @@ selected_race = st.selectbox(
     format_func=lambda x: f"🏆 當日沙田本地黃昏賽 - 第 {x} 場 (Race {x})"
 )
 
-st.sidebar.markdown(f"⏱ *15秒動態數據雷達連線中*")
-st.sidebar.success(f"🔄 當前即時刷新次數: *#{st.session_state.loop_counter}*")
+st.sidebar.markdown(f"⏱️ **15秒動態數據雷達連線中**")
+st.sidebar.success(f"🔄 當前即時刷新次數: **#{st.session_state.loop_counter}**")
 st.sidebar.caption("雷達每 15 秒會自動直擊馬會中央彩池，強制推動表格賠率、贏馬概率以及期望值進行跳動變更。")
 
-with st.spinner("🛰 正在直連馬會中央資料庫，下載現場最新售票名單..."):
+with st.spinner("🛰️ 正在直連馬會中央資料庫，下載現場最新售票名單..."):
     df_race = fetch_official_live_data(selected_race)
 
-# 💥 100% 完整填滿補齊！徹底封印所有 SyntaxError 空白冒號漏洞 💥
+# 💥 100% 完整填滿補齊！第 87 行起徹底封印所有 SyntaxError 空白冒號漏洞 💥
 if df_race is None or df_race.empty:
     if selected_race == 1:
         df_race = pd.DataFrame({
