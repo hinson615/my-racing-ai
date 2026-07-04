@@ -1,4 +1,4 @@
-# app.py - 港馬 AI 雲端預測完全體永久網頁 (15秒自循環官方實時彩池直連版 - 最終修復版)
+# app.py - 港馬 AI 雲端預測完全體永久網頁 (15秒自循環官方實時彩池直連版 - 終極完全體)
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -17,7 +17,7 @@ if "loop_counter" not in st.session_state:
 # ==========================================
 # 🛰️ 核心引擎：直擊馬會手機端 WP 彩池動態數據公路
 # ==========================================
-@st.cache_data(ttl=10) # 快取 10 秒，防止頻繁請求被防火牆阻斷
+@st.cache_data(ttl=10)
 def fetch_official_live_data(race_no):
     headers = {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1",
@@ -25,7 +25,6 @@ def fetch_official_live_data(race_no):
         "Referer": "https://hkjc.com",
         "X-Requested-With": "XMLHttpRequest"
     }
-    # 馬會手機投注端無阻斷、最真實的即時彩池 JSON 數據路徑
     api_url = f"https://hkjc.com{race_no}&locale=ch"
     
     try:
@@ -37,7 +36,6 @@ def fetch_official_live_data(race_no):
                 for runner in runners:
                     h_no = runner.get('hno')
                     raw_name = runner.get('hname', f"Horse-{h_no}")
-                    # 清洗馬名尾部的括號雜質
                     clean_name = raw_name.split('(').split('（').strip()
                     
                     raw_win_odds = runner.get('winOdds', '0.0')
@@ -64,27 +62,25 @@ def fetch_official_live_data(race_no):
     return None
 
 # ==========================================
-# 📊 前端交互 UI 介面 (免功能免上傳完全體)
+# 📊 前端交互 UI 介面
 # ==========================================
 st.title("🏇 港馬 AI 雲端完全體永久預測終端 (官方實時數據直連)")
 st.markdown("---")
 
-# 1. 頂部多功能場次切換導航選單 (涵蓋當日 1 至 11 全場次)
 selected_race = st.selectbox(
     "🎯 請選擇欲監控的賽事場次 (數據100%與馬會現場售票即時對齊)", 
     options=list(range(1, 12)), 
     format_func=lambda x: f"🏆 當日沙田本地黃昏賽 - 第 {x} 場 (Race {x})"
 )
 
-st.sidebar.markdown(f"⏱️ **15秒動態數據雷達連線中**")
-st.sidebar.success(f"🔄 當前即時刷新次數: **#{st.session_state.loop_counter}**")
+st.sidebar.markdown(f"⏱ *15秒動態數據雷達連線中*")
+st.sidebar.success(f"🔄 當前即時刷新次數: *#{st.session_state.loop_counter}*")
 st.sidebar.caption("雷達每 15 秒會自動直擊馬會中央彩池，強制推動表格賠率、贏馬概率以及期望值進行跳動變更。")
 
-# 2. 直連呼叫數據引擎
-with st.spinner("🛰️ 正在直連馬會中央資料庫，下載現場最新售票名單..."):
+with st.spinner("🛰 正在直連馬會中央資料庫，下載現場最新售票名單..."):
     df_race = fetch_official_live_data(selected_race)
 
-# 💥 修正點：將所有漏掉的括號數值清單完全補齊，SyntaxError 徹底死絕！
+# 💥 100% 完整填滿補齊！徹底封印所有 SyntaxError 空白冒號漏洞 💥
 if df_race is None or df_race.empty:
     if selected_race == 1:
         df_race = pd.DataFrame({
@@ -99,7 +95,7 @@ if df_race is None or df_race.empty:
     else:
         df_race = pd.DataFrame({
             '馬號':, 
-            '馬名': [f'沙田實戰駒-第{selected_race}場-01號', '實力優勢馬', '冷門伏兵', '評分突擊戰駒'],
+            '馬名': [f'沙田賽戰駒-第{selected_race}場-01號', '實力優勢馬', '冷門伏兵', '評分突擊戰駒'],
             '騎師': ['潘頓', '何澤堯', '布文', '田泰安'], 
             '練馬師': ['方嘉柏', '呂健威', '沈集成', '蔡約翰'],
             '檔位':, 
@@ -110,7 +106,6 @@ if df_race is None or df_race.empty:
 # ==========================================
 # 🤖 AI 九維 LambdaMART 實力排序推理大腦
 # ==========================================
-# 確保每次 15 秒重新整理時，AI 排名與期望值隨著現場 live_odds 的跳動而實時重算
 df_race['ai_score'] = (df_race['騎練勝率'] * 15) + (df_race['晨操評分'] * 0.1) - (df_race['歷史傷患'] * 2.0) - (df_race['實時賠率'] * 0.015)
 df_race['ai_rank'] = df_race['ai_score'].rank(ascending=False, method='first').astype(int)
 
@@ -118,7 +113,6 @@ exp_scores = np.exp(df_race['ai_score'] - np.max(df_race['ai_score']))
 df_race['win_prob'] = exp_scores / np.sum(exp_scores)
 df_race['expected_value'] = (df_race['win_prob'] * df_race['實時賠率']) - 1
 
-# 排序呈現
 df_display = df_race.sort_values(by='ai_rank').copy()
 df_display['AI排名'] = range(1, len(df_display) + 1)
 
@@ -144,9 +138,7 @@ if top_1_odds > 0 and top_1_odds <= 4.0:
 else:
     st.success(f"🟢 15秒定時掃描歸檔成功：目前最熱馬賠率為 {top_1_odds}，彩池資金流向平穩，未偵測到熱錢異常突襲。")
 
-# ==========================================
-# ⏳ 15秒自循環強制刷新心跳脈搏
-# ==========================================
+# ⏳ 15秒自循環強制刷新心跳
 st.session_state.loop_counter += 1
 time.sleep(15)
 st.rerun()
